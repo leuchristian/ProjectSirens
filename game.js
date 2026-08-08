@@ -66,11 +66,6 @@ window.addEventListener("keydown", function (event) {
 
     keys[key] = true;
 
-    /*
-        Prevent arrow keys from scrolling
-        the browser page.
-    */
-
     if (
         key === "arrowup" ||
         key === "arrowdown" ||
@@ -79,10 +74,6 @@ window.addEventListener("keydown", function (event) {
     ) {
         event.preventDefault();
     }
-
-    /*
-        Fountain interaction.
-    */
 
     if (key === "e") {
         interact();
@@ -104,7 +95,6 @@ window.addEventListener("keyup", function (event) {
 
 const SPAWN_X = 160;
 const SPAWN_Y = 110;
-
 
 const player = {
 
@@ -152,14 +142,12 @@ const player = {
 const FRAME_WIDTH = 61;
 const FRAME_HEIGHT = 61;
 
-
 const FRAME_X = [
     5,
     68,
     131,
     194
 ];
-
 
 const FRAME_Y = [
     3,
@@ -192,21 +180,12 @@ const fountain = {
 
 const walls = [
 
-    /*
-        Left boundary
-    */
-
     {
         x: 12,
         y: 12,
         w: 10,
         h: 156
     },
-
-
-    /*
-        Right boundary
-    */
 
     {
         x: 298,
@@ -215,22 +194,12 @@ const walls = [
         h: 156
     },
 
-
-    /*
-        Top boundary
-    */
-
     {
         x: 12,
         y: 12,
         w: 296,
         h: 8
     },
-
-
-    /*
-        Bottom boundary
-    */
 
     {
         x: 12,
@@ -246,24 +215,10 @@ const walls = [
    SCENERY COLLISION ZONES
 ========================================================= */
 
-/*
-    These are invisible collision rectangles.
-
-    They correspond to objects visible
-    in the scenery artwork.
-*/
-
 const sceneryCollisions = [
 
-    /* -----------------------------------------------------
-       WINDOWS
-    ----------------------------------------------------- */
-
     /*
-        The large windows at the back of the room.
-
-        The player can approach them,
-        but cannot walk onto them.
+        LARGE BACK WINDOWS
     */
 
     {
@@ -274,9 +229,9 @@ const sceneryCollisions = [
     },
 
 
-    /* -----------------------------------------------------
-       UPPER LEFT BOOKCASE
-    ----------------------------------------------------- */
+    /*
+        UPPER LEFT BOOKCASE
+    */
 
     {
         x: 27,
@@ -286,9 +241,9 @@ const sceneryCollisions = [
     },
 
 
-    /* -----------------------------------------------------
-       UPPER RIGHT CLOCK / CABINET
-    ----------------------------------------------------- */
+    /*
+        UPPER RIGHT CABINET
+    */
 
     {
         x: 220,
@@ -298,9 +253,9 @@ const sceneryCollisions = [
     },
 
 
-    /* -----------------------------------------------------
-       UPPER LEFT TABLE
-    ----------------------------------------------------- */
+    /*
+        UPPER LEFT TABLE
+    */
 
     {
         x: 22,
@@ -310,9 +265,9 @@ const sceneryCollisions = [
     },
 
 
-    /* -----------------------------------------------------
-       UPPER RIGHT TABLE
-    ----------------------------------------------------- */
+    /*
+        UPPER RIGHT TABLE
+    */
 
     {
         x: 255,
@@ -322,9 +277,9 @@ const sceneryCollisions = [
     },
 
 
-    /* -----------------------------------------------------
-       LOWER LEFT FURNITURE
-    ----------------------------------------------------- */
+    /*
+        LOWER LEFT FURNITURE
+    */
 
     {
         x: 25,
@@ -334,9 +289,9 @@ const sceneryCollisions = [
     },
 
 
-    /* -----------------------------------------------------
-       LOWER RIGHT FURNITURE
-    ----------------------------------------------------- */
+    /*
+        LOWER RIGHT FURNITURE
+    */
 
     {
         x: 229,
@@ -346,9 +301,9 @@ const sceneryCollisions = [
     },
 
 
-    /* -----------------------------------------------------
-       LOWER LEFT PLANT
-    ----------------------------------------------------- */
+    /*
+        LOWER LEFT PLANT
+    */
 
     {
         x: 38,
@@ -358,9 +313,9 @@ const sceneryCollisions = [
     },
 
 
-    /* -----------------------------------------------------
-       LOWER RIGHT PLANT
-    ----------------------------------------------------- */
+    /*
+        LOWER RIGHT PLANT
+    */
 
     {
         x: 262,
@@ -370,9 +325,9 @@ const sceneryCollisions = [
     },
 
 
-    /* -----------------------------------------------------
-       LOWER CENTER DOOR
-    ----------------------------------------------------- */
+    /*
+        LOWER CENTER DOOR
+    */
 
     {
         x: 143,
@@ -389,7 +344,6 @@ const sceneryCollisions = [
 ========================================================= */
 
 const rain = [];
-
 
 for (let i = 0; i < 90; i++) {
 
@@ -442,7 +396,6 @@ function interact() {
         player.y - fountain.y
 
     );
-
 
     if (distance < 42) {
 
@@ -518,13 +471,10 @@ function collidesWithWall(x, y) {
 
 
     /*
-        Furniture, plants,
-        windows, etc.
+        Scenery objects.
     */
 
-    for (
-        const object of sceneryCollisions
-    ) {
+    for (const object of sceneryCollisions) {
 
         if (
             rectangleCollision(
@@ -543,19 +493,18 @@ function collidesWithWall(x, y) {
     }
 
 
-    /* -----------------------------------------------------
-       FOUNTAIN FRONT COLLISION
-    ----------------------------------------------------- */
-
     /*
+        =====================================================
+        FOUNTAIN FRONT COLLISION
+        =====================================================
+
         IMPORTANT:
 
-        We do NOT make the entire fountain solid.
+        The entire fountain is NOT solid.
 
-        The player is allowed to walk behind it.
+        The player can walk behind the fountain.
 
-        Only the front/bottom portion blocks
-        the player.
+        Only its front/bottom section blocks movement.
     */
 
     const fountainFrontCollision = {
@@ -598,7 +547,6 @@ function collidesWithWall(x, y) {
 function updatePlayer() {
 
     let dx = 0;
-
     let dy = 0;
 
 
@@ -683,7 +631,7 @@ function updatePlayer() {
 
 
     /*
-        Is the player walking?
+        Determine whether player is moving.
     */
 
     player.moving =
@@ -698,7 +646,6 @@ function updatePlayer() {
     const newX =
         player.x +
         dx * player.speed;
-
 
     const newY =
         player.y +
@@ -815,12 +762,6 @@ function loadGame() {
         );
 
 
-    /*
-        No save yet.
-
-        Start on the stairs.
-    */
-
     if (!saved) {
 
         player.x = SPAWN_X;
@@ -880,25 +821,22 @@ function loadGame() {
 function drawScenery() {
 
     /*
-        Background fallback.
+        Dark fallback while scenery loads.
     */
 
     ctx.fillStyle =
         "#202026";
 
-
     ctx.fillRect(
-
         0,
         0,
         WIDTH,
         HEIGHT
-
     );
 
 
     /*
-        Draw the complete scenery.
+        Draw scenery.
     */
 
     if (sceneryLoaded) {
@@ -933,14 +871,14 @@ function drawScenery() {
 function drawPlayer() {
 
     /*
-        Fallback character.
+        Fallback character if sprite has
+        not loaded.
     */
 
     if (!playerLoaded) {
 
         ctx.fillStyle =
             "#111116";
-
 
         ctx.fillRect(
 
@@ -956,7 +894,6 @@ function drawPlayer() {
         ctx.fillStyle =
             "#e4e4e8";
 
-
         ctx.fillRect(
 
             player.x - 4,
@@ -970,7 +907,6 @@ function drawPlayer() {
 
         ctx.fillStyle =
             "#b13d68";
-
 
         ctx.fillRect(
 
@@ -989,7 +925,7 @@ function drawPlayer() {
 
 
     /*
-        Select sprite-sheet column.
+        Determine direction column.
     */
 
     let column = 2;
@@ -1026,7 +962,7 @@ function drawPlayer() {
 
 
     /*
-        Select animation row.
+        Determine animation row.
     */
 
     let row = 0;
@@ -1043,13 +979,12 @@ function drawPlayer() {
     const sourceX =
         FRAME_X[column];
 
-
     const sourceY =
         FRAME_Y[row];
 
 
     /*
-        Draw the character.
+        Draw sprite.
     */
 
     ctx.drawImage(
@@ -1078,14 +1013,17 @@ function drawPlayer() {
 ========================================================= */
 
 /*
-    This is the important new layering system.
+    This is the important part.
 
-    The scenery image is a single large image, so
-    we redraw ONLY the fountain area after the
-    player has been drawn.
+    The previous version redrew a rectangular
+    section of the scenery.
 
-    This makes the fountain appear in front of
-    the player when the player walks behind it.
+    That caused the red carpet surrounding
+    the fountain to appear over the character.
+
+    This version uses a clipping region so that
+    ONLY the fountain itself is redrawn over
+    the player.
 */
 
 function drawFountainForeground() {
@@ -1097,22 +1035,110 @@ function drawFountainForeground() {
     }
 
 
-    /*
-        The scenery image is scaled to fit
-        the 320 x 180 game canvas.
+    ctx.save();
 
-        Therefore we convert the desired
-        canvas region into the corresponding
-        coordinates in the original image.
+
+    /*
+        =====================================================
+        FOUNTAIN SILHOUETTE
+        =====================================================
+
+        The fountain has several distinct parts.
+
+        We create a custom clipping shape around
+        those parts rather than clipping an entire
+        rectangle.
     */
 
-    const destinationX = 125;
 
-    const destinationY = 38;
+    /*
+        -----------------------------------------------------
+        LOWER BASIN
+        -----------------------------------------------------
+    */
 
-    const destinationWidth = 70;
+    ctx.beginPath();
 
-    const destinationHeight = 52;
+    ctx.ellipse(
+
+        160,
+        72,
+
+        42,
+        15,
+
+        0,
+
+        0,
+        Math.PI * 2
+
+    );
+
+
+    /*
+        -----------------------------------------------------
+        CENTRAL UPPER SECTION
+        -----------------------------------------------------
+    */
+
+    ctx.rect(
+
+        153,
+        51,
+
+        14,
+        24
+
+    );
+
+
+    /*
+        -----------------------------------------------------
+        UPPER WATER / PEDESTAL
+        -----------------------------------------------------
+    */
+
+    ctx.beginPath();
+
+    ctx.ellipse(
+
+        160,
+        60,
+
+        18,
+        8,
+
+        0,
+
+        0,
+        Math.PI * 2
+
+    );
+
+
+    /*
+        -----------------------------------------------------
+        CREATE CLIPPING REGION
+        -----------------------------------------------------
+    */
+
+    ctx.clip();
+
+
+    /*
+        The scenery image is larger than the game canvas.
+
+        Convert the canvas coordinates into coordinates
+        on the original scenery image.
+    */
+
+    const destinationX = 115;
+
+    const destinationY = 48;
+
+    const destinationWidth = 90;
+
+    const destinationHeight = 40;
 
 
     const sourceX =
@@ -1147,6 +1173,14 @@ function drawFountainForeground() {
         scenerySprite.naturalHeight;
 
 
+    /*
+        Redraw the scenery.
+
+        Because of ctx.clip(), only the fountain
+        silhouette will actually be placed over
+        the player.
+    */
+
     ctx.drawImage(
 
         scenerySprite,
@@ -1164,6 +1198,9 @@ function drawFountainForeground() {
         destinationHeight
 
     );
+
+
+    ctx.restore();
 
 }
 
@@ -1184,7 +1221,6 @@ function updateRain() {
         ) {
 
             drop.y = -5;
-
 
             drop.x =
                 Math.random() *
@@ -1244,7 +1280,7 @@ function drawRain() {
 function drawUI() {
 
     /*
-        Distance from player to fountain.
+        Calculate distance from fountain.
     */
 
     const fountainDistance =
@@ -1259,9 +1295,11 @@ function drawUI() {
         );
 
 
-    /* -----------------------------------------------------
-       FLOATING E PROMPT
-    ----------------------------------------------------- */
+    /*
+        =====================================================
+        FLOATING E PROMPT
+        =====================================================
+    */
 
     if (
         fountainDistance < 42 &&
@@ -1285,7 +1323,7 @@ function drawUI() {
 
 
         /*
-            Background.
+            Prompt background.
         */
 
         ctx.fillStyle =
@@ -1304,7 +1342,7 @@ function drawUI() {
 
 
         /*
-            Border.
+            Prompt border.
         */
 
         ctx.strokeStyle =
@@ -1323,7 +1361,7 @@ function drawUI() {
 
 
         /*
-            Letter E.
+            E.
         */
 
         ctx.fillStyle =
@@ -1358,9 +1396,11 @@ function drawUI() {
     }
 
 
-    /* -----------------------------------------------------
-       DIALOGUE BOX
-    ----------------------------------------------------- */
+    /*
+        =====================================================
+        DIALOGUE BOX
+        =====================================================
+    */
 
     if (messageTimer > 0) {
 
@@ -1429,38 +1469,38 @@ function update() {
 function draw() {
 
     /*
-        1. Background/scenery
+        1. Background scenery.
     */
 
     drawScenery();
 
 
     /*
-        2. Rain behind player
+        2. Rain.
     */
 
     drawRain();
 
 
     /*
-        3. Player
+        3. Character.
     */
 
     drawPlayer();
 
 
     /*
-        4. Fountain foreground
+        4. Fountain foreground.
 
-        This is drawn AFTER the player so that
-        the fountain can visually cover him.
+        Only the fountain itself is redrawn,
+        so the carpet remains behind the player.
     */
 
     drawFountainForeground();
 
 
     /*
-        5. UI goes on top of everything.
+        5. UI.
     */
 
     drawUI();
