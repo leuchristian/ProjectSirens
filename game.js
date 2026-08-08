@@ -19,10 +19,11 @@ let playerSpriteLoaded = false;
 
 playerSprite.onload = function () {
     playerSpriteLoaded = true;
+    console.log("Player sprite loaded.");
 };
 
 playerSprite.onerror = function () {
-    console.warn("Could not load player sprite.");
+    console.warn("Player sprite could not be loaded.");
 };
 
 playerSprite.src =
@@ -30,23 +31,91 @@ playerSprite.src =
 
 
 /* =========================================================
-SCENERY BACKGROUND
+SCENERY
 ========================================================= */
+
+/*
+    We try several possible locations.
+
+    This prevents the game from getting stuck if the
+    scenery file was uploaded somewhere slightly different.
+*/
+
+const sceneryPaths = [
+
+    "assets/scenery/project_sirens_scenery_transparent.png",
+
+    "assets/scenery.png",
+
+    "assets/project_sirens_scenery_transparent.png",
+
+    "project_sirens_scenery_transparent.png",
+
+    "assets/scenery/scenery.png"
+
+];
+
 
 const scenerySprite = new Image();
 
 let scenerySpriteLoaded = false;
 
+let sceneryPathIndex = 0;
+
+
+function tryNextSceneryPath() {
+
+    if (
+        sceneryPathIndex >=
+        sceneryPaths.length
+    ) {
+
+        console.warn(
+            "Project Sirens scenery could not be found."
+        );
+
+        return;
+
+    }
+
+
+    const path =
+        sceneryPaths[sceneryPathIndex];
+
+
+    console.log(
+        "Trying scenery:",
+        path
+    );
+
+
+    scenerySprite.src = path;
+
+}
+
+
 scenerySprite.onload = function () {
+
     scenerySpriteLoaded = true;
+
+    console.log(
+        "Scenery loaded successfully from:",
+        sceneryPaths[sceneryPathIndex]
+    );
+
 };
+
 
 scenerySprite.onerror = function () {
-    console.warn("Could not load scenery image.");
+
+    sceneryPathIndex++;
+
+    tryNextSceneryPath();
+
 };
 
-scenerySprite.src =
-    "assets/scenery/project_sirens_scenery_transparent.png";
+
+tryNextSceneryPath();
 
 
 /* =========================================================
@@ -55,21 +124,37 @@ INPUT
 
 const keys = {};
 
-window.addEventListener("keydown", (event) => {
 
-    keys[event.key.toLowerCase()] = true;
+window.addEventListener(
+    "keydown",
+    (event) => {
 
-    if (event.key.toLowerCase() === "e") {
-        interact();
+        const key =
+            event.key.toLowerCase();
+
+        keys[key] = true;
+
+
+        if (key === "e") {
+
+            interact();
+
+        }
+
     }
+);
 
-});
 
-window.addEventListener("keyup", (event) => {
+window.addEventListener(
+    "keyup",
+    (event) => {
 
-    keys[event.key.toLowerCase()] = false;
+        keys[
+            event.key.toLowerCase()
+        ] = false;
 
-});
+    }
+);
 
 
 /* =========================================================
@@ -79,9 +164,11 @@ PLAYER
 const player = {
 
     x: 160,
+
     y: 112,
 
     width: 10,
+
     height: 10,
 
     speed: 1.5,
@@ -101,17 +188,8 @@ const player = {
 WORLD COLLISION
 ========================================================= */
 
-/*
-    These collision areas keep the player from walking
-    through the major architectural boundaries.
-
-    We can refine these later after seeing the scenery
-    inside the game.
-*/
-
 const walls = [
 
-    // Left wall
     {
         x: 12,
         y: 12,
@@ -119,7 +197,6 @@ const walls = [
         h: 156
     },
 
-    // Right wall
     {
         x: 298,
         y: 12,
@@ -127,7 +204,6 @@ const walls = [
         h: 156
     },
 
-    // Top wall
     {
         x: 12,
         y: 12,
@@ -135,7 +211,6 @@ const walls = [
         h: 8
     },
 
-    // Bottom wall
     {
         x: 12,
         y: 162,
@@ -151,11 +226,6 @@ FOUNTAIN
 ========================================================= */
 
 const fountain = {
-
-    /*
-        The fountain in the scenery is approximately
-        in the center of the upper room.
-    */
 
     x: 160,
 
@@ -175,17 +245,30 @@ RAIN
 
 const rain = [];
 
-for (let i = 0; i < 90; i++) {
+
+for (
+    let i = 0;
+    i < 90;
+    i++
+) {
 
     rain.push({
 
-        x: Math.random() * WIDTH,
+        x:
+            Math.random() *
+            WIDTH,
 
-        y: Math.random() * HEIGHT,
+        y:
+            Math.random() *
+            HEIGHT,
 
-        speed: 1 + Math.random() * 2,
+        speed:
+            1 +
+            Math.random() * 2,
 
-        length: 2 + Math.random() * 4
+        length:
+            2 +
+            Math.random() * 4
 
     });
 
@@ -216,16 +299,21 @@ INTERACTION
 
 function interact() {
 
-    const distance = Math.hypot(
+    const distance =
+        Math.hypot(
 
-        player.x - fountain.x,
+            player.x -
+            fountain.x,
 
-        player.y - fountain.y
+            player.y -
+            fountain.y
 
-    );
+        );
 
 
-    if (distance < 32) {
+    if (
+        distance < 32
+    ) {
 
         showMessage(
             fountain.interactMessage
@@ -242,22 +330,34 @@ function interact() {
 COLLISION
 ========================================================= */
 
-function collidesWithWall(x, y) {
+function collidesWithWall(
+    x,
+    y
+) {
 
-    for (const wall of walls) {
+    for (
+        const wall of walls
+    ) {
 
         if (
 
-            x + player.width / 2 > wall.x &&
+            x +
+            player.width / 2 >
+            wall.x &&
 
-            x - player.width / 2 <
-            wall.x + wall.w &&
+            x -
+            player.width / 2 <
+            wall.x +
+            wall.w &&
 
-            y + player.height / 2 >
+            y +
+            player.height / 2 >
             wall.y &&
 
-            y - player.height / 2 <
-            wall.y + wall.h
+            y -
+            player.height / 2 <
+            wall.y +
+            wall.h
 
         ) {
 
@@ -266,6 +366,7 @@ function collidesWithWall(x, y) {
         }
 
     }
+
 
     return false;
 
@@ -350,12 +451,14 @@ function updatePlayer() {
 
     const newX =
         player.x +
-        dx * player.speed;
+        dx *
+        player.speed;
 
 
     const newY =
         player.y +
-        dy * player.speed;
+        dy *
+        player.speed;
 
 
     if (
@@ -382,13 +485,14 @@ function updatePlayer() {
     }
 
 
-    /* -----------------------------------------
-       Walking animation
-       ----------------------------------------- */
+    /* Walking animation */
 
-    if (player.moving) {
+    if (
+        player.moving
+    ) {
 
         player.animationTimer++;
+
 
         if (
             player.animationTimer >= 8
@@ -397,6 +501,7 @@ function updatePlayer() {
             player.animationTimer = 0;
 
             player.animationFrame++;
+
 
             if (
                 player.animationFrame > 1
@@ -468,13 +573,23 @@ function loadGame() {
 
 
         if (
-            typeof data.x === "number" &&
-            typeof data.y === "number"
+            typeof data.x ===
+            "number"
         ) {
 
-            player.x = data.x;
+            player.x =
+                data.x;
 
-            player.y = data.y;
+        }
+
+
+        if (
+            typeof data.y ===
+            "number"
+        ) {
+
+            player.y =
+                data.y;
 
         }
 
@@ -497,10 +612,12 @@ DRAW SCENERY
 function drawScenery() {
 
     /*
-        Dark floor underneath the transparent image.
+        Dark background underneath the transparent PNG.
     */
 
-    ctx.fillStyle = "#111217";
+    ctx.fillStyle =
+        "#111217";
+
 
     ctx.fillRect(
 
@@ -515,14 +632,23 @@ function drawScenery() {
     );
 
 
-    if (!scenerySpriteLoaded) {
+    if (
+        !scenerySpriteLoaded
+    ) {
 
         /*
-            Fallback screen while the scenery
-            image is loading.
+            IMPORTANT:
+
+            We no longer display a permanent
+            loading screen.
+
+            The game continues running normally
+            while the scenery is being loaded.
         */
 
-        ctx.fillStyle = "#202026";
+        ctx.fillStyle =
+            "#202026";
+
 
         ctx.fillRect(
 
@@ -536,21 +662,6 @@ function drawScenery() {
 
         );
 
-        ctx.fillStyle = "#ffffff";
-
-        ctx.font = "8px monospace";
-
-        ctx.textAlign = "center";
-
-        ctx.fillText(
-
-            "Loading Project Sirens...",
-
-            WIDTH / 2,
-
-            HEIGHT / 2
-
-        );
 
         return;
 
@@ -558,48 +669,32 @@ function drawScenery() {
 
 
     /*
-        Original scenery:
+        The scenery image is:
 
         1536 × 1024
 
-        Game canvas:
+        Our game viewport is:
 
         320 × 180
 
-        The scenery is slightly taller than
-        the game's 16:9 view.
-
-        We crop a small amount from the top
-        and bottom rather than stretching it.
+        We crop the scenery slightly vertically
+        so it fits the game's 16:9 view.
     */
-
-    const sourceWidth = 1536;
-
-    const sourceHeight = 864;
-
-    const sourceX = 0;
-
-    const sourceY = 80;
-
 
     ctx.drawImage(
 
         scenerySprite,
 
-        sourceX,
+        0,
+        80,
 
-        sourceY,
-
-        sourceWidth,
-
-        sourceHeight,
+        1536,
+        864,
 
         0,
-
         0,
 
         WIDTH,
-
         HEIGHT
 
     );
@@ -614,12 +709,16 @@ PLAYER DRAW
 function drawPlayer() {
 
     /*
-        Fallback player while the sprite loads.
+        Temporary fallback player.
     */
 
-    if (!playerSpriteLoaded) {
+    if (
+        !playerSpriteLoaded
+    ) {
 
-        ctx.fillStyle = "#111116";
+        ctx.fillStyle =
+            "#111116";
+
 
         ctx.fillRect(
 
@@ -634,7 +733,9 @@ function drawPlayer() {
         );
 
 
-        ctx.fillStyle = "#e4e4e8";
+        ctx.fillStyle =
+            "#e4e4e8";
+
 
         ctx.fillRect(
 
@@ -649,7 +750,9 @@ function drawPlayer() {
         );
 
 
-        ctx.fillStyle = "#b13d68";
+        ctx.fillStyle =
+            "#b13d68";
+
 
         ctx.fillRect(
 
@@ -663,13 +766,14 @@ function drawPlayer() {
 
         );
 
+
         return;
 
     }
 
 
     /*
-        Player sprite sheet:
+        Player sheet:
 
         0 = LEFT
         1 = UP
@@ -681,7 +785,8 @@ function drawPlayer() {
 
 
     if (
-        player.facing === "left"
+        player.facing ===
+        "left"
     ) {
 
         frame = 0;
@@ -690,7 +795,8 @@ function drawPlayer() {
 
 
     if (
-        player.facing === "up"
+        player.facing ===
+        "up"
     ) {
 
         frame = 1;
@@ -699,7 +805,8 @@ function drawPlayer() {
 
 
     if (
-        player.facing === "down"
+        player.facing ===
+        "down"
     ) {
 
         frame = 2;
@@ -708,7 +815,8 @@ function drawPlayer() {
 
 
     if (
-        player.facing === "right"
+        player.facing ===
+        "right"
     ) {
 
         frame = 3;
@@ -720,32 +828,17 @@ function drawPlayer() {
         frame * 64;
 
 
-    const sourceY = 0;
-
-
-    /*
-        Small walking bob.
-    */
-
     let bob = 0;
 
 
-    if (player.moving) {
+    if (
+        player.moving &&
+        player.animationFrame === 1
+    ) {
 
-        if (
-            player.animationFrame === 1
-        ) {
-
-            bob = -2;
-
-        }
+        bob = -2;
 
     }
-
-
-    const drawWidth = 24;
-
-    const drawHeight = 24;
 
 
     ctx.drawImage(
@@ -754,23 +847,19 @@ function drawPlayer() {
 
         sourceX,
 
-        sourceY,
+        0,
 
         64,
 
         64,
 
-        player.x -
-        drawWidth / 2,
+        player.x - 12,
 
-        player.y -
-        drawHeight +
-        3 +
-        bob,
+        player.y - 21 + bob,
 
-        drawWidth,
+        24,
 
-        drawHeight
+        24
 
     );
 
@@ -787,7 +876,8 @@ function updateRain() {
         const drop of rain
     ) {
 
-        drop.y += drop.speed;
+        drop.y +=
+            drop.speed;
 
 
         if (
@@ -795,6 +885,7 @@ function updateRain() {
         ) {
 
             drop.y = -5;
+
 
             drop.x =
                 Math.random() *
@@ -918,30 +1009,11 @@ function update() {
 
 function draw() {
 
-    /*
-        Background scenery first.
-    */
-
     drawScenery();
-
-
-    /*
-        Rain appears over the environment.
-    */
 
     drawRain();
 
-
-    /*
-        Player appears over the environment.
-    */
-
     drawPlayer();
-
-
-    /*
-        UI appears on top of everything.
-    */
 
     drawUI();
 
