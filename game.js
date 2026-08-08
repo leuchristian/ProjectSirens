@@ -46,7 +46,9 @@ window.addEventListener("keydown", (event) => {
 });
 
 window.addEventListener("keyup", (event) => {
+
     keys[event.key.toLowerCase()] = false;
+
 });
 
 
@@ -64,7 +66,12 @@ const player = {
 
     speed: 1.5,
 
-    facing: "down"
+    facing: "down",
+
+    // Walking animation
+    moving: false,
+    animationTimer: 0,
+    animationFrame: 0
 
 };
 
@@ -218,12 +225,14 @@ function updatePlayer() {
     let dx = 0;
     let dy = 0;
 
+
     if (keys["w"] || keys["arrowup"]) {
 
         dy -= 1;
         player.facing = "up";
 
     }
+
 
     if (keys["s"] || keys["arrowdown"]) {
 
@@ -232,12 +241,14 @@ function updatePlayer() {
 
     }
 
+
     if (keys["a"] || keys["arrowleft"]) {
 
         dx -= 1;
         player.facing = "left";
 
     }
+
 
     if (keys["d"] || keys["arrowright"]) {
 
@@ -246,12 +257,23 @@ function updatePlayer() {
 
     }
 
+
     if (dx !== 0 && dy !== 0) {
 
         dx *= 0.7071;
         dy *= 0.7071;
 
     }
+
+
+    /*
+        Remember whether the player is
+        actually attempting to move.
+    */
+
+    player.moving =
+        dx !== 0 || dy !== 0;
+
 
     const newX =
         player.x +
@@ -268,9 +290,45 @@ function updatePlayer() {
 
     }
 
+
     if (!collidesWithWall(player.x, newY)) {
 
         player.y = newY;
+
+    }
+
+
+    /*
+        Walking animation.
+
+        We don't yet have multiple walking
+        frames, so we animate the existing
+        sprite with a subtle two-step bob.
+    */
+
+    if (player.moving) {
+
+        player.animationTimer++;
+
+        if (player.animationTimer >= 8) {
+
+            player.animationTimer = 0;
+
+            player.animationFrame++;
+
+            if (player.animationFrame > 1) {
+
+                player.animationFrame = 0;
+
+            }
+
+        }
+
+    }
+    else {
+
+        player.animationTimer = 0;
+        player.animationFrame = 0;
 
     }
 
@@ -460,8 +518,8 @@ PLAYER DRAW
 function drawPlayer() {
 
     /*
-        If the sprite hasn't loaded,
-        keep using the original placeholder.
+        Fallback placeholder if the PNG
+        hasn't loaded.
     */
 
     if (!playerSpriteLoaded) {
@@ -499,7 +557,7 @@ function drawPlayer() {
 
 
     /*
-        Sprite sheet layout:
+        Sprite sheet:
 
         0 = LEFT
         1 = UP
@@ -509,11 +567,13 @@ function drawPlayer() {
 
     let frame = 2;
 
+
     if (player.facing === "left") {
 
         frame = 0;
 
     }
+
 
     if (player.facing === "up") {
 
@@ -521,11 +581,13 @@ function drawPlayer() {
 
     }
 
+
     if (player.facing === "down") {
 
         frame = 2;
 
     }
+
 
     if (player.facing === "right") {
 
@@ -534,13 +596,6 @@ function drawPlayer() {
     }
 
 
-    /*
-        Each sprite is 64x64.
-
-        frame * 64 determines which
-        sprite to take from the sheet.
-    */
-
     const sourceX =
         frame * 64;
 
@@ -548,9 +603,34 @@ function drawPlayer() {
 
 
     /*
-        Draw the selected sprite
-        at 24x24 in the game.
+        Small two-frame walking bob.
+
+        The sprite itself stays the same,
+        but moves up/down slightly to give
+        the impression of a walking cycle.
     */
+
+    let bob = 0;
+
+    if (player.moving) {
+
+        if (player.animationFrame === 0) {
+
+            bob = 0;
+
+        }
+        else {
+
+            bob = -2;
+
+        }
+
+    }
+
+
+    const drawWidth = 24;
+    const drawHeight = 24;
+
 
     ctx.drawImage(
 
@@ -562,11 +642,12 @@ function drawPlayer() {
         64,
         64,
 
-        player.x - 12,
-        player.y - 21,
+        player.x - drawWidth / 2,
 
-        24,
-        24
+        player.y - drawHeight + 3 + bob,
+
+        drawWidth,
+        drawHeight
 
     );
 
