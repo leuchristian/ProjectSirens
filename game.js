@@ -5,6 +5,21 @@ const ctx = canvas.getContext("2d");
 
 ctx.imageSmoothingEnabled = false;
 
+const playerSprite = new Image();
+
+let playerSpriteLoaded = false;
+
+playerSprite.onload = function () {
+    playerSpriteLoaded = true;
+};
+
+playerSprite.onerror = function () {
+    console.warn("Project Sirens: player sprite could not be loaded.");
+};
+
+playerSprite.src =
+    "assets/characters/player/player_sprite_sheet.png";
+
 const WIDTH = canvas.width;
 const HEIGHT = canvas.height;
 
