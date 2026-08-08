@@ -219,23 +219,31 @@ function updatePlayer() {
     let dy = 0;
 
     if (keys["w"] || keys["arrowup"]) {
+
         dy -= 1;
         player.facing = "up";
+
     }
 
     if (keys["s"] || keys["arrowdown"]) {
+
         dy += 1;
         player.facing = "down";
+
     }
 
     if (keys["a"] || keys["arrowleft"]) {
+
         dx -= 1;
         player.facing = "left";
+
     }
 
     if (keys["d"] || keys["arrowright"]) {
+
         dx += 1;
         player.facing = "right";
+
     }
 
     if (dx !== 0 && dy !== 0) {
@@ -255,11 +263,15 @@ function updatePlayer() {
 
 
     if (!collidesWithWall(newX, player.y)) {
+
         player.x = newX;
+
     }
 
     if (!collidesWithWall(player.x, newY)) {
+
         player.y = newY;
+
     }
 
 }
@@ -294,7 +306,9 @@ function loadGame() {
         );
 
     if (!save) {
+
         return;
+
     }
 
     const data =
@@ -446,8 +460,8 @@ PLAYER DRAW
 function drawPlayer() {
 
     /*
-        If the sprite has not loaded,
-        use the original placeholder.
+        If the sprite hasn't loaded,
+        keep using the original placeholder.
     */
 
     if (!playerSpriteLoaded) {
@@ -461,9 +475,6 @@ function drawPlayer() {
             10
         );
 
-
-        // Hair
-
         ctx.fillStyle = "#e4e4e8";
 
         ctx.fillRect(
@@ -472,9 +483,6 @@ function drawPlayer() {
             8,
             3
         );
-
-
-        // Jacket
 
         ctx.fillStyle = "#b13d68";
 
@@ -486,20 +494,70 @@ function drawPlayer() {
         );
 
         return;
+
     }
 
 
     /*
-        Draw the first 64x64 sprite
-        from the top-left of the sheet.
+        Sprite sheet layout:
+
+        0 = LEFT
+        1 = UP
+        2 = DOWN
+        3 = RIGHT
+    */
+
+    let frame = 2;
+
+    if (player.facing === "left") {
+
+        frame = 0;
+
+    }
+
+    if (player.facing === "up") {
+
+        frame = 1;
+
+    }
+
+    if (player.facing === "down") {
+
+        frame = 2;
+
+    }
+
+    if (player.facing === "right") {
+
+        frame = 3;
+
+    }
+
+
+    /*
+        Each sprite is 64x64.
+
+        frame * 64 determines which
+        sprite to take from the sheet.
+    */
+
+    const sourceX =
+        frame * 64;
+
+    const sourceY = 0;
+
+
+    /*
+        Draw the selected sprite
+        at 24x24 in the game.
     */
 
     ctx.drawImage(
 
         playerSprite,
 
-        0,
-        0,
+        sourceX,
+        sourceY,
 
         64,
         64,
