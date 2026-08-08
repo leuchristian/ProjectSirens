@@ -8,8 +8,29 @@ ctx.imageSmoothingEnabled = false;
 const WIDTH = canvas.width;
 const HEIGHT = canvas.height;
 
+
 /* =========================================================
-   INPUT
+PLAYER SPRITE
+========================================================= */
+
+const playerSprite = new Image();
+
+let playerSpriteLoaded = false;
+
+playerSprite.onload = function () {
+    playerSpriteLoaded = true;
+};
+
+playerSprite.onerror = function () {
+    console.warn("Could not load player sprite.");
+};
+
+playerSprite.src =
+    "assets/characters/player/player_sprite_sheet.png";
+
+
+/* =========================================================
+INPUT
 ========================================================= */
 
 const keys = {};
@@ -30,7 +51,7 @@ window.addEventListener("keyup", (event) => {
 
 
 /* =========================================================
-   PLAYER
+PLAYER
 ========================================================= */
 
 const player = {
@@ -49,7 +70,7 @@ const player = {
 
 
 /* =========================================================
-   WORLD
+WORLD
 ========================================================= */
 
 const walls = [
@@ -68,7 +89,7 @@ const walls = [
 
 
 /* =========================================================
-   FOUNTAIN
+FOUNTAIN
 ========================================================= */
 
 const fountain = {
@@ -85,7 +106,7 @@ const fountain = {
 
 
 /* =========================================================
-   PLANTS
+PLANTS
 ========================================================= */
 
 const plants = [
@@ -102,7 +123,7 @@ const plants = [
 
 
 /* =========================================================
-   RAIN
+RAIN
 ========================================================= */
 
 const rain = [];
@@ -124,7 +145,7 @@ for (let i = 0; i < 90; i++) {
 
 
 /* =========================================================
-   MESSAGE SYSTEM
+MESSAGE SYSTEM
 ========================================================= */
 
 let message = "";
@@ -139,7 +160,7 @@ function showMessage(text) {
 
 
 /* =========================================================
-   INTERACTION
+INTERACTION
 ========================================================= */
 
 function interact() {
@@ -163,7 +184,7 @@ function interact() {
 
 
 /* =========================================================
-   COLLISION
+COLLISION
 ========================================================= */
 
 function collidesWithWall(x, y) {
@@ -189,7 +210,7 @@ function collidesWithWall(x, y) {
 
 
 /* =========================================================
-   MOVEMENT
+MOVEMENT
 ========================================================= */
 
 function updatePlayer() {
@@ -245,7 +266,7 @@ function updatePlayer() {
 
 
 /* =========================================================
-   SAVE SYSTEM
+SAVE SYSTEM
 ========================================================= */
 
 function saveGame() {
@@ -286,13 +307,15 @@ function loadGame() {
 
 
 /* =========================================================
-   DRAWING
+DRAWING
 ========================================================= */
 
 function drawWorld() {
 
     // Floor
+
     ctx.fillStyle = "#202026";
+
     ctx.fillRect(
         0,
         0,
@@ -302,6 +325,7 @@ function drawWorld() {
 
 
     // Floor tiles
+
     ctx.strokeStyle = "#292931";
 
     for (let x = 18; x < 302; x += 16) {
@@ -416,49 +440,83 @@ function drawWorld() {
 
 
 /* =========================================================
-   PLAYER DRAW
+PLAYER DRAW
 ========================================================= */
 
 function drawPlayer() {
 
-    ctx.fillStyle = "#111116";
+    /*
+        If the sprite has not loaded,
+        use the original placeholder.
+    */
 
-    ctx.fillRect(
-        player.x - 5,
-        player.y - 6,
-        10,
-        10
-    );
+    if (!playerSpriteLoaded) {
 
+        ctx.fillStyle = "#111116";
 
-    // Hair
-
-    ctx.fillStyle = "#e4e4e8";
-
-    ctx.fillRect(
-        player.x - 4,
-        player.y - 7,
-        8,
-        3
-    );
+        ctx.fillRect(
+            player.x - 5,
+            player.y - 6,
+            10,
+            10
+        );
 
 
-    // Jacket
+        // Hair
 
-    ctx.fillStyle = "#b13d68";
+        ctx.fillStyle = "#e4e4e8";
 
-    ctx.fillRect(
-        player.x - 4,
-        player.y - 2,
-        8,
-        7
+        ctx.fillRect(
+            player.x - 4,
+            player.y - 7,
+            8,
+            3
+        );
+
+
+        // Jacket
+
+        ctx.fillStyle = "#b13d68";
+
+        ctx.fillRect(
+            player.x - 4,
+            player.y - 2,
+            8,
+            7
+        );
+
+        return;
+    }
+
+
+    /*
+        Draw the first 64x64 sprite
+        from the top-left of the sheet.
+    */
+
+    ctx.drawImage(
+
+        playerSprite,
+
+        0,
+        0,
+
+        64,
+        64,
+
+        player.x - 12,
+        player.y - 21,
+
+        24,
+        24
+
     );
 
 }
 
 
 /* =========================================================
-   RAIN DRAWING
+RAIN DRAWING
 ========================================================= */
 
 function updateRain() {
@@ -508,7 +566,7 @@ function drawRain() {
 
 
 /* =========================================================
-   UI
+UI
 ========================================================= */
 
 function drawUI() {
@@ -547,7 +605,7 @@ function drawUI() {
 
 
 /* =========================================================
-   GAME LOOP
+GAME LOOP
 ========================================================= */
 
 function update() {
@@ -586,7 +644,7 @@ function gameLoop() {
 
 
 /* =========================================================
-   START
+START
 ========================================================= */
 
 loadGame();
