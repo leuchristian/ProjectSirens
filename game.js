@@ -10,8 +10,8 @@ const HEIGHT = canvas.height;
 
 
 /* =========================================================
-PLAYER SPRITE
-========================================================= */
+   PLAYER SPRITE SHEET
+   ========================================================= */
 
 const playerSprite = new Image();
 
@@ -23,7 +23,9 @@ playerSprite.onload = function () {
 };
 
 playerSprite.onerror = function () {
-    console.warn("Player sprite could not be loaded.");
+    console.error(
+        "Could not load player sprite."
+    );
 };
 
 playerSprite.src =
@@ -31,103 +33,49 @@ playerSprite.src =
 
 
 /* =========================================================
-SCENERY
-========================================================= */
-
-/*
-    We try several possible locations.
-
-    This prevents the game from getting stuck if the
-    scenery file was uploaded somewhere slightly different.
-*/
-
-const sceneryPaths = [
-
-    "assets/scenery/project_sirens_scenery_transparent.png",
-
-    "assets/scenery.png",
-
-    "assets/project_sirens_scenery_transparent.png",
-
-    "project_sirens_scenery_transparent.png",
-
-    "assets/scenery/scenery.png"
-
-];
-
+   SCENERY
+   ========================================================= */
 
 const scenerySprite = new Image();
 
 let scenerySpriteLoaded = false;
-
-let sceneryPathIndex = 0;
-
-
-function tryNextSceneryPath() {
-
-    if (
-        sceneryPathIndex >=
-        sceneryPaths.length
-    ) {
-
-        console.warn(
-            "Project Sirens scenery could not be found."
-        );
-
-        return;
-
-    }
-
-
-    const path =
-        sceneryPaths[sceneryPathIndex];
-
-
-    console.log(
-        "Trying scenery:",
-        path
-    );
-
-
-    scenerySprite.src = path;
-
-}
-
 
 scenerySprite.onload = function () {
 
     scenerySpriteLoaded = true;
 
     console.log(
-        "Scenery loaded successfully from:",
-        sceneryPaths[sceneryPathIndex]
+        "Scenery loaded successfully."
     );
 
 };
 
-
 scenerySprite.onerror = function () {
 
-    sceneryPathIndex++;
+    console.error(
+        "Could not load scenery:"
+    );
 
-    tryNextSceneryPath();
+    console.error(
+        "assets/scenery/project_sirens_scenery_transparent.png"
+    );
 
 };
 
-
-tryNextSceneryPath();
+scenerySprite.src =
+    "assets/scenery/project_sirens_scenery_transparent.png";
 
 
 /* =========================================================
-INPUT
-========================================================= */
+   INPUT
+   ========================================================= */
 
 const keys = {};
 
 
 window.addEventListener(
     "keydown",
-    (event) => {
+    function (event) {
 
         const key =
             event.key.toLowerCase();
@@ -147,28 +95,27 @@ window.addEventListener(
 
 window.addEventListener(
     "keyup",
-    (event) => {
+    function (event) {
 
-        keys[
-            event.key.toLowerCase()
-        ] = false;
+        const key =
+            event.key.toLowerCase();
+
+        keys[key] = false;
 
     }
 );
 
 
 /* =========================================================
-PLAYER
-========================================================= */
+   PLAYER
+   ========================================================= */
 
 const player = {
 
     x: 160,
-
-    y: 112,
+    y: 115,
 
     width: 10,
-
     height: 10,
 
     speed: 1.5,
@@ -185,11 +132,100 @@ const player = {
 
 
 /* =========================================================
-WORLD COLLISION
-========================================================= */
+   SPRITE SHEET SETTINGS
+   ========================================================= */
+
+/*
+   The supplied sheet is 640 × 640.
+
+   The actual small character frames occupy the
+   upper-left portion of the sheet.
+
+   Each character frame is approximately 61 × 61.
+
+   Four idle directions are located across the
+   first row:
+
+       0 = LEFT
+       1 = UP
+       2 = DOWN
+       3 = RIGHT
+*/
+
+
+const FRAME_WIDTH = 61;
+const FRAME_HEIGHT = 61;
+
+
+/*
+   X positions of the four character frames.
+*/
+
+const FRAME_X = [
+    5,
+    68,
+    131,
+    194
+];
+
+
+/*
+   Idle row.
+*/
+
+const IDLE_Y = 2;
+
+
+/*
+   Walking animation rows.
+
+   These correspond to the animated rows
+   underneath the idle row.
+
+   Each direction uses four frames.
+
+   If your particular sheet uses a slightly
+   different ordering, these are isolated here
+   so we can adjust them without touching the
+   rest of the game.
+*/
+
+const WALK_ROWS = {
+
+    left: [
+        67,
+        131,
+        195
+    ],
+
+    up: [
+        323,
+        387,
+        451
+    ],
+
+    down: [
+        515,
+        515,
+        515
+    ],
+
+    right: [
+        67,
+        131,
+        195
+    ]
+
+};
+
+
+/* =========================================================
+   WORLD COLLISION
+   ========================================================= */
 
 const walls = [
 
+    // Outer left wall
     {
         x: 12,
         y: 12,
@@ -197,6 +233,7 @@ const walls = [
         h: 156
     },
 
+    // Outer right wall
     {
         x: 298,
         y: 12,
@@ -204,6 +241,7 @@ const walls = [
         h: 156
     },
 
+    // Top wall
     {
         x: 12,
         y: 12,
@@ -211,6 +249,7 @@ const walls = [
         h: 8
     },
 
+    // Bottom wall
     {
         x: 12,
         y: 162,
@@ -222,16 +261,16 @@ const walls = [
 
 
 /* =========================================================
-FOUNTAIN
-========================================================= */
+   FOUNTAIN
+   ========================================================= */
 
 const fountain = {
 
     x: 160,
 
-    y: 62,
+    y: 70,
 
-    radius: 22,
+    radius: 20,
 
     interactMessage:
         "The fountain water is strangely calming."
@@ -240,11 +279,10 @@ const fountain = {
 
 
 /* =========================================================
-RAIN
-========================================================= */
+   RAIN
+   ========================================================= */
 
 const rain = [];
-
 
 for (
     let i = 0;
@@ -255,20 +293,16 @@ for (
     rain.push({
 
         x:
-            Math.random() *
-            WIDTH,
+            Math.random() * WIDTH,
 
         y:
-            Math.random() *
-            HEIGHT,
+            Math.random() * HEIGHT,
 
         speed:
-            1 +
-            Math.random() * 2,
+            1 + Math.random() * 2,
 
         length:
-            2 +
-            Math.random() * 4
+            2 + Math.random() * 4
 
     });
 
@@ -276,8 +310,8 @@ for (
 
 
 /* =========================================================
-MESSAGE SYSTEM
-========================================================= */
+   MESSAGE SYSTEM
+   ========================================================= */
 
 let message = "";
 
@@ -294,8 +328,8 @@ function showMessage(text) {
 
 
 /* =========================================================
-INTERACTION
-========================================================= */
+   INTERACTION
+   ========================================================= */
 
 function interact() {
 
@@ -327,8 +361,8 @@ function interact() {
 
 
 /* =========================================================
-COLLISION
-========================================================= */
+   COLLISION
+   ========================================================= */
 
 function collidesWithWall(
     x,
@@ -374,8 +408,8 @@ function collidesWithWall(
 
 
 /* =========================================================
-MOVEMENT
-========================================================= */
+   MOVEMENT
+   ========================================================= */
 
 function updatePlayer() {
 
@@ -485,26 +519,26 @@ function updatePlayer() {
     }
 
 
-    /* Walking animation */
+    /*
+       Animation timing.
 
-    if (
-        player.moving
-    ) {
+       Lower number = faster animation.
+    */
+
+    if (player.moving) {
 
         player.animationTimer++;
 
-
         if (
-            player.animationTimer >= 8
+            player.animationTimer >= 7
         ) {
 
             player.animationTimer = 0;
 
             player.animationFrame++;
 
-
             if (
-                player.animationFrame > 1
+                player.animationFrame >= 4
             ) {
 
                 player.animationFrame = 0;
@@ -526,8 +560,8 @@ function updatePlayer() {
 
 
 /* =========================================================
-SAVE SYSTEM
-========================================================= */
+   SAVE SYSTEM
+   ========================================================= */
 
 function saveGame() {
 
@@ -597,7 +631,7 @@ function loadGame() {
     catch (error) {
 
         console.warn(
-            "Could not load saved game."
+            "Save data could not be loaded."
         );
 
     }
@@ -606,13 +640,13 @@ function loadGame() {
 
 
 /* =========================================================
-DRAW SCENERY
-========================================================= */
+   DRAW SCENERY
+   ========================================================= */
 
 function drawScenery() {
 
     /*
-        Dark background underneath the transparent PNG.
+       Background color behind the transparent image.
     */
 
     ctx.fillStyle =
@@ -622,46 +656,19 @@ function drawScenery() {
     ctx.fillRect(
 
         0,
-
         0,
-
         WIDTH,
-
         HEIGHT
 
     );
 
 
-    if (
-        !scenerySpriteLoaded
-    ) {
+    if (!scenerySpriteLoaded) {
 
         /*
-            IMPORTANT:
-
-            We no longer display a permanent
-            loading screen.
-
-            The game continues running normally
-            while the scenery is being loaded.
+           Don't stop the game if scenery
+           hasn't loaded yet.
         */
-
-        ctx.fillStyle =
-            "#202026";
-
-
-        ctx.fillRect(
-
-            0,
-
-            0,
-
-            WIDTH,
-
-            HEIGHT
-
-        );
-
 
         return;
 
@@ -669,16 +676,13 @@ function drawScenery() {
 
 
     /*
-        The scenery image is:
+       The scenery image is 1536 × 1024.
 
-        1536 × 1024
+       We display the entire image scaled
+       into the 320 × 180 game window.
 
-        Our game viewport is:
-
-        320 × 180
-
-        We crop the scenery slightly vertically
-        so it fits the game's 16:9 view.
+       This makes sure the image definitely
+       appears instead of relying on a crop.
     */
 
     ctx.drawImage(
@@ -686,14 +690,12 @@ function drawScenery() {
         scenerySprite,
 
         0,
-        80,
-
-        1536,
-        864,
+        0,
+        scenerySprite.naturalWidth,
+        scenerySprite.naturalHeight,
 
         0,
         0,
-
         WIDTH,
         HEIGHT
 
@@ -703,18 +705,16 @@ function drawScenery() {
 
 
 /* =========================================================
-PLAYER DRAW
-========================================================= */
+   DRAW PLAYER
+   ========================================================= */
 
 function drawPlayer() {
 
-    /*
-        Temporary fallback player.
-    */
+    if (!playerSpriteLoaded) {
 
-    if (
-        !playerSpriteLoaded
-    ) {
+        /*
+           Simple fallback.
+        */
 
         ctx.fillStyle =
             "#111116";
@@ -723,46 +723,9 @@ function drawPlayer() {
         ctx.fillRect(
 
             player.x - 5,
-
             player.y - 6,
-
             10,
-
             10
-
-        );
-
-
-        ctx.fillStyle =
-            "#e4e4e8";
-
-
-        ctx.fillRect(
-
-            player.x - 4,
-
-            player.y - 7,
-
-            8,
-
-            3
-
-        );
-
-
-        ctx.fillStyle =
-            "#b13d68";
-
-
-        ctx.fillRect(
-
-            player.x - 4,
-
-            player.y - 2,
-
-            8,
-
-            7
 
         );
 
@@ -772,73 +735,155 @@ function drawPlayer() {
     }
 
 
-    /*
-        Player sheet:
+    let sourceX;
 
-        0 = LEFT
-        1 = UP
-        2 = DOWN
-        3 = RIGHT
+    let sourceY;
+
+
+    /*
+       -----------------------------------------------
+       IDLE
+       -----------------------------------------------
+
+       Top row contains:
+
+       LEFT | UP | DOWN | RIGHT
     */
 
-    let frame = 2;
+
+    if (!player.moving) {
+
+        if (
+            player.facing === "left"
+        ) {
+
+            sourceX =
+                FRAME_X[0];
+
+        }
+        else if (
+            player.facing === "up"
+        ) {
+
+            sourceX =
+                FRAME_X[1];
+
+        }
+        else if (
+            player.facing === "down"
+        ) {
+
+            sourceX =
+                FRAME_X[2];
+
+        }
+        else {
+
+            sourceX =
+                FRAME_X[3];
+
+        }
 
 
-    if (
-        player.facing ===
-        "left"
-    ) {
-
-        frame = 0;
-
-    }
-
-
-    if (
-        player.facing ===
-        "up"
-    ) {
-
-        frame = 1;
-
-    }
-
-
-    if (
-        player.facing ===
-        "down"
-    ) {
-
-        frame = 2;
-
-    }
-
-
-    if (
-        player.facing ===
-        "right"
-    ) {
-
-        frame = 3;
+        sourceY =
+            IDLE_Y;
 
     }
 
 
-    const sourceX =
-        frame * 64;
+    /*
+       -----------------------------------------------
+       WALKING
+       -----------------------------------------------
+    */
+
+    else {
+
+        /*
+           Select animation row based on direction.
+        */
+
+        let rows;
 
 
-    let bob = 0;
+        if (
+            player.facing === "left"
+        ) {
+
+            rows =
+                WALK_ROWS.left;
+
+        }
+        else if (
+            player.facing === "up"
+        ) {
+
+            rows =
+                WALK_ROWS.up;
+
+        }
+        else if (
+            player.facing === "right"
+        ) {
+
+            rows =
+                WALK_ROWS.right;
+
+        }
+        else {
+
+            rows =
+                WALK_ROWS.down;
+
+        }
 
 
-    if (
-        player.moving &&
-        player.animationFrame === 1
-    ) {
+        /*
+           Cycle horizontally through the four
+           frames in the animation.
+        */
 
-        bob = -2;
+        sourceX =
+            FRAME_X[
+                player.animationFrame
+            ];
+
+
+        /*
+           Select one of the animation rows.
+
+           The rows are cycled as the character
+           walks.
+        */
+
+        const rowIndex =
+            Math.floor(
+                player.animationFrame / 2
+            );
+
+
+        sourceY =
+            rows[
+                Math.min(
+                    rowIndex,
+                    rows.length - 1
+                )
+            ];
 
     }
+
+
+    /*
+       Draw the sprite.
+
+       The original character is tiny, so we
+       enlarge it for our game while keeping
+       pixel-art edges sharp.
+    */
+
+    const drawWidth = 24;
+
+    const drawHeight = 24;
 
 
     ctx.drawImage(
@@ -847,19 +892,22 @@ function drawPlayer() {
 
         sourceX,
 
-        0,
+        sourceY,
 
-        64,
+        FRAME_WIDTH,
 
-        64,
+        FRAME_HEIGHT,
 
-        player.x - 12,
+        player.x -
+            drawWidth / 2,
 
-        player.y - 21 + bob,
+        player.y -
+            drawHeight +
+            3,
 
-        24,
+        drawWidth,
 
-        24
+        drawHeight
 
     );
 
@@ -867,8 +915,8 @@ function drawPlayer() {
 
 
 /* =========================================================
-RAIN
-========================================================= */
+   RAIN
+   ========================================================= */
 
 function updateRain() {
 
@@ -938,8 +986,8 @@ function drawRain() {
 
 
 /* =========================================================
-UI
-========================================================= */
+   UI
+   ========================================================= */
 
 function drawUI() {
 
@@ -954,11 +1002,8 @@ function drawUI() {
         ctx.fillRect(
 
             20,
-
             137,
-
             280,
-
             17
 
         );
@@ -995,8 +1040,8 @@ function drawUI() {
 
 
 /* =========================================================
-GAME LOOP
-========================================================= */
+   GAME LOOP
+   ========================================================= */
 
 function update() {
 
@@ -1034,8 +1079,8 @@ function gameLoop() {
 
 
 /* =========================================================
-START
-========================================================= */
+   START
+   ========================================================= */
 
 loadGame();
 
