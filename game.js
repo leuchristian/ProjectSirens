@@ -1,37 +1,20 @@
 "use strict";
 
-
 /* =========================================================
    CANVAS / GAME RESOLUTION
 ========================================================= */
 
-/*
-   We are now using a 640 x 360 game canvas.
-
-   This is twice the previous 320 x 180 resolution while
-   keeping the same 16:9 aspect ratio.
-*/
-
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
-
 
 canvas.width = 640;
 canvas.height = 360;
 
-
-/*
-   Make the game visually larger on the webpage while
-   preserving the 16:9 aspect ratio.
-
-   The browser can shrink it automatically on smaller screens.
-*/
-
 canvas.style.width = "min(960px, 92vw)";
 canvas.style.height = "auto";
+canvas.style.imageRendering = "pixelated";
 
 ctx.imageSmoothingEnabled = false;
-
 
 const WIDTH = 640;
 const HEIGHT = 360;
@@ -45,22 +28,13 @@ const playerSprite = new Image();
 
 let playerLoaded = false;
 
-
 playerSprite.onload = function () {
-
     playerLoaded = true;
-
 };
-
 
 playerSprite.onerror = function () {
-
-    console.log(
-        "Player sprite could not be loaded."
-    );
-
+    console.log("Player sprite could not be loaded.");
 };
-
 
 playerSprite.src =
     "assets/characters/player/player_sprite_sheet.png";
@@ -74,45 +48,25 @@ const scenerySprite = new Image();
 
 let sceneryLoaded = false;
 
-
 scenerySprite.onload = function () {
-
     sceneryLoaded = true;
-
+    calculateSceneryCrop();
 };
-
 
 scenerySprite.onerror = function () {
-
-    console.log(
-        "Scenery image could not be loaded."
-    );
-
+    console.log("Scenery image could not be loaded.");
 };
-
 
 scenerySprite.src =
     "assets/scenery/project_sirens_scenery_transparent.png";
 
 
 /* =========================================================
-   SCENERY DISPLAY SETTINGS
+   SCENERY DISPLAY
 ========================================================= */
-
-/*
-   The scenery artwork is larger than the game canvas.
-
-   Instead of stretching the artwork vertically, we use
-   a 16:9 "cover" calculation.
-
-   This preserves the proportions of the artwork.
-*/
-
-let sceneryScale = 1;
 
 let scenerySourceX = 0;
 let scenerySourceY = 0;
-
 let scenerySourceWidth = 0;
 let scenerySourceHeight = 0;
 
@@ -123,13 +77,11 @@ function calculateSceneryCrop() {
         return;
     }
 
-
     const imageWidth =
         scenerySprite.naturalWidth;
 
     const imageHeight =
         scenerySprite.naturalHeight;
-
 
     const canvasRatio =
         WIDTH / HEIGHT;
@@ -139,12 +91,6 @@ function calculateSceneryCrop() {
 
 
     if (imageRatio > canvasRatio) {
-
-        /*
-           Image is wider than the game.
-
-           Crop the left and right.
-        */
 
         scenerySourceHeight =
             imageHeight;
@@ -161,12 +107,6 @@ function calculateSceneryCrop() {
     }
     else {
 
-        /*
-           Image is taller than the game.
-
-           Crop the top and bottom.
-        */
-
         scenerySourceWidth =
             imageWidth;
 
@@ -178,9 +118,7 @@ function calculateSceneryCrop() {
         scenerySourceY =
             (imageHeight -
                 scenerySourceHeight) / 2;
-
     }
-
 }
 
 
@@ -190,7 +128,6 @@ function calculateSceneryCrop() {
 
 const keys = {};
 
-
 window.addEventListener(
     "keydown",
     function (event) {
@@ -198,14 +135,8 @@ window.addEventListener(
         const key =
             event.key.toLowerCase();
 
-
         keys[key] = true;
 
-
-        /*
-           Stop arrow keys from scrolling
-           the browser page.
-        */
 
         if (
             key === "arrowup" ||
@@ -215,18 +146,11 @@ window.addEventListener(
         ) {
 
             event.preventDefault();
-
         }
 
 
-        /*
-           Fountain interaction.
-        */
-
         if (key === "e") {
-
             interact();
-
         }
 
     }
@@ -248,13 +172,6 @@ window.addEventListener(
 /* =========================================================
    PLAYER
 ========================================================= */
-
-/*
-   Starting position is on the stairs directly
-   in front of the fountain.
-
-   These coordinates are now based on 640 x 360.
-*/
 
 const SPAWN_X = 320;
 const SPAWN_Y = 220;
@@ -285,21 +202,6 @@ const player = {
    PLAYER SPRITE SHEET
 ========================================================= */
 
-/*
-   Sprite sheet layout:
-
-       Column 0 = LEFT
-       Column 1 = UP
-       Column 2 = DOWN
-       Column 3 = RIGHT
-
-       Row 0 = idle
-       Row 1 = walking frame 1
-       Row 2 = walking frame 2
-       Row 3 = walking frame 3
-*/
-
-
 const FRAME_WIDTH = 61;
 const FRAME_HEIGHT = 61;
 
@@ -328,11 +230,6 @@ const FRAME_Y = [
    FOUNTAIN
 ========================================================= */
 
-/*
-   Fountain position in the new 640 x 360
-   coordinate system.
-*/
-
 const fountain = {
 
     x: 320,
@@ -353,21 +250,12 @@ const fountain = {
 
 const walls = [
 
-    /*
-       LEFT
-    */
-
     {
         x: 24,
         y: 24,
         w: 20,
         h: 312
     },
-
-
-    /*
-       RIGHT
-    */
 
     {
         x: 596,
@@ -376,22 +264,12 @@ const walls = [
         h: 312
     },
 
-
-    /*
-       TOP
-    */
-
     {
         x: 24,
         y: 24,
         w: 592,
         h: 16
     },
-
-
-    /*
-       BOTTOM
-    */
 
     {
         x: 24,
@@ -407,21 +285,9 @@ const walls = [
    SCENERY COLLISION ZONES
 ========================================================= */
 
-/*
-   These coordinates have been doubled from the
-   previous 320 x 180 game.
-*/
-
 const sceneryCollisions = [
 
-    /*
-       -----------------------------------------------------
-       WINDOWS
-       -----------------------------------------------------
-
-       The character may approach the windows,
-       but cannot walk onto them.
-    */
+    /* Windows */
 
     {
         x: 182,
@@ -431,11 +297,7 @@ const sceneryCollisions = [
     },
 
 
-    /*
-       -----------------------------------------------------
-       UPPER LEFT BOOKCASE
-       -----------------------------------------------------
-    */
+    /* Upper-left bookcase */
 
     {
         x: 54,
@@ -445,11 +307,7 @@ const sceneryCollisions = [
     },
 
 
-    /*
-       -----------------------------------------------------
-       UPPER RIGHT CABINET
-       -----------------------------------------------------
-    */
+    /* Upper-right cabinet */
 
     {
         x: 440,
@@ -459,11 +317,7 @@ const sceneryCollisions = [
     },
 
 
-    /*
-       -----------------------------------------------------
-       UPPER LEFT TABLE
-       -----------------------------------------------------
-    */
+    /* Upper-left table */
 
     {
         x: 44,
@@ -473,11 +327,7 @@ const sceneryCollisions = [
     },
 
 
-    /*
-       -----------------------------------------------------
-       UPPER RIGHT TABLE
-       -----------------------------------------------------
-    */
+    /* Upper-right table */
 
     {
         x: 510,
@@ -487,11 +337,7 @@ const sceneryCollisions = [
     },
 
 
-    /*
-       -----------------------------------------------------
-       LOWER LEFT FURNITURE
-       -----------------------------------------------------
-    */
+    /* Lower-left furniture */
 
     {
         x: 50,
@@ -501,11 +347,7 @@ const sceneryCollisions = [
     },
 
 
-    /*
-       -----------------------------------------------------
-       LOWER RIGHT FURNITURE
-       -----------------------------------------------------
-    */
+    /* Lower-right furniture */
 
     {
         x: 458,
@@ -515,11 +357,7 @@ const sceneryCollisions = [
     },
 
 
-    /*
-       -----------------------------------------------------
-       LOWER LEFT PLANT
-       -----------------------------------------------------
-    */
+    /* Lower-left plant */
 
     {
         x: 76,
@@ -529,11 +367,7 @@ const sceneryCollisions = [
     },
 
 
-    /*
-       -----------------------------------------------------
-       LOWER RIGHT PLANT
-       -----------------------------------------------------
-    */
+    /* Lower-right plant */
 
     {
         x: 524,
@@ -543,11 +377,7 @@ const sceneryCollisions = [
     },
 
 
-    /*
-       -----------------------------------------------------
-       LOWER CENTER DOOR
-       -----------------------------------------------------
-    */
+    /* Lower center door */
 
     {
         x: 286,
@@ -564,7 +394,6 @@ const sceneryCollisions = [
 ========================================================= */
 
 const rain = [];
-
 
 for (let i = 140; i > 0; i--) {
 
@@ -592,7 +421,6 @@ for (let i = 140; i > 0; i--) {
 ========================================================= */
 
 let message = "";
-
 let messageTimer = 0;
 
 
@@ -673,23 +501,17 @@ function rectangleCollision(
 
 function collidesWithWall(x, y) {
 
-    /*
-       OUTER WALLS
-    */
+    /* World boundaries */
 
     for (const wall of walls) {
 
         if (
             rectangleCollision(
-
                 x,
                 y,
-
                 player.width,
                 player.height,
-
                 wall
-
             )
         ) {
 
@@ -700,9 +522,7 @@ function collidesWithWall(x, y) {
     }
 
 
-    /*
-       SCENERY
-    */
+    /* Scenery */
 
     for (
         const object of sceneryCollisions
@@ -710,15 +530,11 @@ function collidesWithWall(x, y) {
 
         if (
             rectangleCollision(
-
                 x,
                 y,
-
                 player.width,
                 player.height,
-
                 object
-
             )
         ) {
 
@@ -730,16 +546,14 @@ function collidesWithWall(x, y) {
 
 
     /*
-       =====================================================
-       FOUNTAIN FRONT COLLISION
-       =====================================================
-
-       IMPORTANT:
+       FOUNTAIN FRONT
 
        The player is allowed to walk behind
        the fountain.
 
-       Only the front rim blocks him.
+       Only the lower/front basin prevents
+       the player from walking completely
+       through it.
     */
 
     const fountainFrontCollision = {
@@ -757,15 +571,11 @@ function collidesWithWall(x, y) {
 
     if (
         rectangleCollision(
-
             x,
             y,
-
             player.width,
             player.height,
-
             fountainFrontCollision
-
         )
     ) {
 
@@ -786,13 +596,8 @@ function collidesWithWall(x, y) {
 function updatePlayer() {
 
     let dx = 0;
-
     let dy = 0;
 
-
-    /*
-       UP
-    */
 
     if (
         keys["w"] ||
@@ -806,10 +611,6 @@ function updatePlayer() {
     }
 
 
-    /*
-       DOWN
-    */
-
     if (
         keys["s"] ||
         keys["arrowdown"]
@@ -821,10 +622,6 @@ function updatePlayer() {
 
     }
 
-
-    /*
-       LEFT
-    */
 
     if (
         keys["a"] ||
@@ -838,10 +635,6 @@ function updatePlayer() {
     }
 
 
-    /*
-       RIGHT
-    */
-
     if (
         keys["d"] ||
         keys["arrowright"]
@@ -854,55 +647,35 @@ function updatePlayer() {
     }
 
 
-    /*
-       Diagonal movement normalization.
-    */
-
     if (
         dx !== 0 &&
         dy !== 0
     ) {
 
         dx *= 0.7071;
-
         dy *= 0.7071;
 
     }
 
-
-    /*
-       Movement state.
-    */
 
     player.moving =
         dx !== 0 ||
         dy !== 0;
 
 
-    /*
-       New position.
-    */
-
     const newX =
         player.x +
         dx * player.speed;
-
 
     const newY =
         player.y +
         dy * player.speed;
 
 
-    /*
-       Horizontal collision.
-    */
-
     if (
         !collidesWithWall(
-
             newX,
             player.y
-
         )
     ) {
 
@@ -911,16 +684,10 @@ function updatePlayer() {
     }
 
 
-    /*
-       Vertical collision.
-    */
-
     if (
         !collidesWithWall(
-
             player.x,
             newY
-
         )
     ) {
 
@@ -989,11 +756,8 @@ function saveGame() {
 
 
     localStorage.setItem(
-
         SAVE_KEY,
-
         JSON.stringify(saveData)
-
     );
 
 }
@@ -1007,14 +771,9 @@ function loadGame() {
         );
 
 
-    /*
-       Start at the stairs if no save exists.
-    */
-
     if (!saved) {
 
         player.x = SPAWN_X;
-
         player.y = SPAWN_Y;
 
         return;
@@ -1034,14 +793,12 @@ function loadGame() {
         ) {
 
             player.x = data.x;
-
             player.y = data.y;
 
         }
         else {
 
             player.x = SPAWN_X;
-
             player.y = SPAWN_Y;
 
         }
@@ -1053,9 +810,7 @@ function loadGame() {
             "Save could not be loaded."
         );
 
-
         player.x = SPAWN_X;
-
         player.y = SPAWN_Y;
 
     }
@@ -1069,43 +824,25 @@ function loadGame() {
 
 function drawScenery() {
 
-    /*
-       Background while scenery loads.
-    */
-
     ctx.fillStyle =
         "#202026";
 
 
     ctx.fillRect(
-
         0,
         0,
-
         WIDTH,
         HEIGHT
-
     );
 
 
     if (!sceneryLoaded) {
-
         return;
-
     }
 
 
-    /*
-       Calculate the proper crop.
-    */
-
     calculateSceneryCrop();
 
-
-    /*
-       Draw the scenery without distorting
-       its original proportions.
-    */
 
     ctx.drawImage(
 
@@ -1245,15 +982,9 @@ function drawPlayer() {
     const sourceX =
         FRAME_X[column];
 
-
     const sourceY =
         FRAME_Y[row];
 
-
-    /*
-       Character is now approximately twice
-       the previous displayed size.
-    */
 
     ctx.drawImage(
 
@@ -1281,33 +1012,30 @@ function drawPlayer() {
 ========================================================= */
 
 /*
-   IMPORTANT:
+   IMPORTANT FIX:
 
-   This is intentionally NOT a large rectangle.
+   The previous version redrew a large polygon of the
+   scenery after the player.
 
-   We only redraw the actual FRONT EDGE of the fountain.
+   That polygon also contained the staircase behind the
+   fountain, which caused the staircase to appear on top
+   of the player's head.
 
-   Therefore:
+   This version ONLY covers the very bottom/front portion
+   of the fountain.
 
-       CARPET remains behind the character.
+   Result:
 
-       CHARACTER'S HEAD remains visible.
-
-       CHARACTER'S BODY remains visible.
-
-       CHARACTER'S FEET disappear behind
-       the fountain's front basin.
-
-       FOUNTAIN FRONT is visually in front.
+       HEAD       -> visible
+       BODY       -> visible
+       FEET       -> can disappear behind fountain
+       STAIRCASE  -> never drawn over the player
 */
-
 
 function drawFountainForeground() {
 
     if (!sceneryLoaded) {
-
         return;
-
     }
 
 
@@ -1315,131 +1043,104 @@ function drawFountainForeground() {
 
 
     /*
-       -----------------------------------------------------
-       FOUNTAIN FRONT-RIM MASK
-       -----------------------------------------------------
+       FRONT BASIN ONLY
 
-       This polygon follows the front portion
-       of the fountain.
+       The top edge has intentionally been moved
+       downward so that the character's head and
+       upper body cannot be covered.
 
-       It intentionally does NOT include the
-       surrounding red carpet.
+       This is the actual foreground portion,
+       rather than the entire fountain area.
     */
 
     ctx.beginPath();
 
 
-    /*
-       Start at the left side of the fountain.
-    */
-
     ctx.moveTo(
-        236,
-        148
-    );
-
-
-    /*
-       Upper edge of the fountain rim.
-    */
-
-    ctx.lineTo(
         258,
-        156
+        180
     );
 
 
     ctx.lineTo(
-        282,
-        164
+        278,
+        187
+    );
+
+
+    ctx.lineTo(
+        300,
+        193
     );
 
 
     ctx.lineTo(
         320,
-        172
+        196
     );
 
 
     ctx.lineTo(
-        358,
-        164
+        340,
+        193
+    );
+
+
+    ctx.lineTo(
+        362,
+        187
     );
 
 
     ctx.lineTo(
         382,
-        156
-    );
-
-
-    ctx.lineTo(
-        404,
-        148
+        180
     );
 
 
     /*
-       Outer/front lower edge.
+       Bottom/front edge.
     */
 
     ctx.lineTo(
-        394,
-        174
+        374,
+        197
     );
 
 
     ctx.lineTo(
-        372,
-        186
-    );
-
-
-    ctx.lineTo(
-        344,
-        194
+        350,
+        205
     );
 
 
     ctx.lineTo(
         320,
-        198
+        209
     );
 
 
     ctx.lineTo(
-        296,
-        194
+        290,
+        205
     );
 
 
     ctx.lineTo(
-        268,
-        186
-    );
-
-
-    ctx.lineTo(
-        246,
-        174
+        266,
+        197
     );
 
 
     ctx.closePath();
 
 
-    /*
-       Activate the clipping mask.
-    */
-
     ctx.clip();
 
 
     /*
-       Draw the original scenery again.
-
-       Because of the clipping mask, only the
-       fountain front region appears over the player.
+       Redraw the scenery only inside the
+       narrow fountain-front mask.
     */
 
     ctx.drawImage(
@@ -1515,10 +1216,8 @@ function drawRain() {
 
 
         ctx.moveTo(
-
             drop.x,
             drop.y
-
         );
 
 
@@ -1558,9 +1257,7 @@ function drawUI() {
 
 
     /*
-       =====================================================
        FLOATING E PROMPT
-       =====================================================
     */
 
     if (
@@ -1584,10 +1281,6 @@ function drawUI() {
             bob;
 
 
-        /*
-           Prompt background.
-        */
-
         ctx.fillStyle =
             "rgba(10,10,15,0.90)";
 
@@ -1602,10 +1295,6 @@ function drawUI() {
 
         );
 
-
-        /*
-           Prompt border.
-        */
 
         ctx.strokeStyle =
             "#ffffff";
@@ -1624,10 +1313,6 @@ function drawUI() {
 
         );
 
-
-        /*
-           E.
-        */
 
         ctx.fillStyle =
             "#ffffff";
@@ -1662,9 +1347,7 @@ function drawUI() {
 
 
     /*
-       =====================================================
        DIALOGUE BOX
-       =====================================================
     */
 
     if (
@@ -1691,7 +1374,7 @@ function drawUI() {
 
 
         ctx.font =
-            "14px monospace";
+            "bold 14px monospace";
 
 
         ctx.textAlign =
@@ -1736,42 +1419,38 @@ function update() {
 function draw() {
 
     /*
-       BACKGROUND
+       1. Background scenery
     */
 
     drawScenery();
 
 
     /*
-       RAIN
+       2. Rain behind the character
     */
 
     drawRain();
 
 
     /*
-       PLAYER
+       3. Player
     */
 
     drawPlayer();
 
 
     /*
-       FOUNTAIN FOREGROUND
+       4. ONLY the fountain's lower/front rim
+          goes over the player.
 
-       This happens AFTER the player.
-
-       Only the front rim is redrawn, meaning
-       the player's feet can disappear behind
-       the fountain while his upper body remains
-       visible.
+          The staircase is NOT redrawn here.
     */
 
     drawFountainForeground();
 
 
     /*
-       UI
+       5. UI
     */
 
     drawUI();
