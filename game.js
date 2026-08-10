@@ -39,10 +39,8 @@ sceneryImage.src =
 playerImage.src =
     "assets/characters/player/player_sprite.png";
 
-
 let sceneryReady = false;
 let playerReady = false;
-
 
 sceneryImage.onload = function () {
 
@@ -56,7 +54,6 @@ sceneryImage.onload = function () {
 
 };
 
-
 sceneryImage.onerror = function () {
 
     console.error(
@@ -65,7 +62,6 @@ sceneryImage.onerror = function () {
     );
 
 };
-
 
 playerImage.onload = function () {
 
@@ -78,7 +74,6 @@ playerImage.onload = function () {
     );
 
 };
-
 
 playerImage.onerror = function () {
 
@@ -96,14 +91,11 @@ playerImage.onerror = function () {
 
 const keys = {};
 
-
 window.addEventListener("keydown", function (event) {
 
-    const key =
-        event.key.toLowerCase();
+    const key = event.key.toLowerCase();
 
     keys[key] = true;
-
 
     if (
         key === "arrowup" ||
@@ -116,7 +108,6 @@ window.addEventListener("keydown", function (event) {
 
     }
 
-
     if (key === "e") {
 
         interact();
@@ -124,7 +115,6 @@ window.addEventListener("keydown", function (event) {
     }
 
 });
-
 
 window.addEventListener("keyup", function (event) {
 
@@ -140,7 +130,9 @@ window.addEventListener("keyup", function (event) {
 const player = {
 
     /*
-       Start on the stairs directly below the fountain.
+       Starting position:
+       directly below the fountain,
+       on the staircase area.
     */
 
     x: 320,
@@ -148,7 +140,7 @@ const player = {
 
     /*
        Small collision box.
-       The visible sprite is larger than this.
+       The visible sprite is larger.
     */
 
     width: 10,
@@ -172,24 +164,19 @@ const player = {
    ========================================================= */
 
 /*
-   The character sheet is arranged in 64 x 64 cells.
+   64 x 64 sprite cells.
 
-   First four columns represent:
+   Direction columns:
 
        0 = down
        1 = left
        2 = right
        3 = up
 
-   Additional rows are used for walking animation.
+   Animation frames are arranged vertically.
 */
 
 const SPRITE_SIZE = 64;
-
-
-/*
-   Direction columns.
-*/
 
 const directionColumn = {
 
@@ -209,6 +196,7 @@ const world = {
 
     left: 30,
     right: 610,
+
     top: 18,
     bottom: 345
 
@@ -220,18 +208,19 @@ const world = {
    ========================================================= */
 
 /*
-   BACK WALL / WINDOWS
-   -------------------
-   The player can walk in the space between the back wall
+   BACK WALL
+   ---------------------------------------------------------
+   The player may walk in the area BETWEEN the back wall
    and the fountain.
 
-   They simply cannot walk INTO the back wall itself.
+   The player simply cannot walk INTO the back wall.
 */
 
 const backWall = {
 
     x: 50,
     y: 18,
+
     w: 540,
     h: 38
 
@@ -239,58 +228,31 @@ const backWall = {
 
 
 /*
-   FOUNTAIN
-   --------
-   The fountain itself is solid.
+   FOUNTAIN FRONT COLLISION
+   ---------------------------------------------------------
+   IMPORTANT:
 
-   The important part is that this does NOT block the entire
-   area behind the fountain.
+   This is intentionally ONLY the front portion of the
+   fountain.
+
+   The player can walk behind the fountain.
+
+   The player cannot walk onto the fountain's front basin.
 */
 
 const fountainCollision = {
 
-    x: 246,
-    y: 108,
-    w: 148,
-    h: 58
+    x: 250,
+    y: 136,
+
+    w: 140,
+    h: 30
 
 };
 
 
 /*
-   UPPER STAIR / LEDGE
-   -------------------
-   This blocks the player from walking through the large
-   staircase rather than treating the entire scenery as
-   solid.
-*/
-
-const upperStairs = {
-
-    x: 50,
-    y: 176,
-    w: 540,
-    h: 18
-
-};
-
-
-/*
-   LOWER LEDGE
-*/
-
-const lowerLedge = {
-
-    x: 50,
-    y: 270,
-    w: 540,
-    h: 15
-
-};
-
-
-/*
-   LEFT AND RIGHT OUTER WALLS
+   LEFT / RIGHT OUTER WALLS
 */
 
 const sideWalls = [
@@ -319,7 +281,7 @@ const sideWalls = [
 const fountain = {
 
     x: 320,
-    y: 135,
+    y: 125,
 
     interactionRadius: 58,
 
@@ -335,7 +297,6 @@ const fountain = {
 
 let message = "";
 let messageTimer = 0;
-
 
 function showMessage(text) {
 
@@ -355,8 +316,11 @@ function rectanglesOverlap(a, b) {
     return (
 
         a.x < b.x + b.w &&
+
         a.x + a.w > b.x &&
+
         a.y < b.y + b.h &&
+
         a.y + a.h > b.y
 
     );
@@ -390,14 +354,19 @@ function playerCollides(x, y) {
 
 
     /*
-       Outer boundaries.
+       OUTER WORLD BOUNDARIES
     */
 
     if (
+
         box.x < world.left ||
+
         box.x + box.w > world.right ||
+
         box.y < world.top ||
+
         box.y + box.h > world.bottom
+
     ) {
 
         return true;
@@ -406,7 +375,7 @@ function playerCollides(x, y) {
 
 
     /*
-       Side walls.
+       SIDE WALLS
     */
 
     for (const wall of sideWalls) {
@@ -426,7 +395,7 @@ function playerCollides(x, y) {
 
 
     /*
-       Back wall.
+       BACK WALL
     */
 
     if (
@@ -442,7 +411,10 @@ function playerCollides(x, y) {
 
 
     /*
-       Fountain.
+       FOUNTAIN FRONT
+
+       This does NOT block the area behind
+       the fountain.
     */
 
     if (
@@ -458,35 +430,11 @@ function playerCollides(x, y) {
 
 
     /*
-       Upper staircase.
+       There is intentionally NO giant
+       staircase collision rectangle here.
+
+       The staircase remains walkable.
     */
-
-    if (
-        rectanglesOverlap(
-            box,
-            upperStairs
-        )
-    ) {
-
-        return true;
-
-    }
-
-
-    /*
-       Lower ledge.
-    */
-
-    if (
-        rectanglesOverlap(
-            box,
-            lowerLedge
-        )
-    ) {
-
-        return true;
-
-    }
 
 
     return false;
@@ -504,6 +452,10 @@ function updatePlayer() {
     let dy = 0;
 
 
+    /*
+       UP
+    */
+
     if (
         keys["w"] ||
         keys["arrowup"]
@@ -515,6 +467,10 @@ function updatePlayer() {
 
     }
 
+
+    /*
+       DOWN
+    */
 
     if (
         keys["s"] ||
@@ -528,6 +484,10 @@ function updatePlayer() {
     }
 
 
+    /*
+       LEFT
+    */
+
     if (
         keys["a"] ||
         keys["arrowleft"]
@@ -539,6 +499,10 @@ function updatePlayer() {
 
     }
 
+
+    /*
+       RIGHT
+    */
 
     if (
         keys["d"] ||
@@ -573,13 +537,12 @@ function updatePlayer() {
 
 
     /*
-       Walking animation.
+       WALKING ANIMATION
     */
 
     if (player.moving) {
 
         player.animationTimer++;
-
 
         if (
             player.animationTimer >= 8
@@ -589,11 +552,9 @@ function updatePlayer() {
 
             player.frame++;
 
-            /*
-               Three animation frames.
-            */
-
-            if (player.frame > 2) {
+            if (
+                player.frame > 2
+            ) {
 
                 player.frame = 0;
 
@@ -611,7 +572,7 @@ function updatePlayer() {
 
 
     /*
-       Calculate new position.
+       NEW POSITION
     */
 
     const newX =
@@ -624,7 +585,7 @@ function updatePlayer() {
 
 
     /*
-       Horizontal movement.
+       HORIZONTAL MOVEMENT
     */
 
     if (
@@ -640,7 +601,7 @@ function updatePlayer() {
 
 
     /*
-       Vertical movement.
+       VERTICAL MOVEMENT
     */
 
     if (
@@ -658,7 +619,7 @@ function updatePlayer() {
 
 
 /* =========================================================
-   SAVE
+   SAVE SYSTEM
    ========================================================= */
 
 function saveGame() {
@@ -669,7 +630,6 @@ function saveGame() {
         y: player.y
 
     };
-
 
     localStorage.setItem(
 
@@ -683,7 +643,7 @@ function saveGame() {
 
 
 /* =========================================================
-   LOAD
+   LOAD SYSTEM
    ========================================================= */
 
 function loadGame() {
@@ -708,8 +668,11 @@ function loadGame() {
 
 
         if (
+
             typeof data.x === "number" &&
+
             typeof data.y === "number"
+
         ) {
 
             player.x = data.x;
@@ -739,17 +702,19 @@ function nearFountain() {
         Math.hypot(
 
             player.x -
-                fountain.x,
+            fountain.x,
 
             player.y -
-                fountain.y
+            fountain.y
 
         );
 
 
     return (
+
         distance <
         fountain.interactionRadius
+
     );
 
 }
@@ -765,7 +730,9 @@ function interact() {
 
 
     showMessage(
+
         fountain.interactMessage
+
     );
 
 
@@ -781,10 +748,12 @@ function interact() {
 function drawScenery() {
 
     ctx.clearRect(
+
         0,
         0,
         WIDTH,
         HEIGHT
+
     );
 
 
@@ -794,10 +763,12 @@ function drawScenery() {
             "#202026";
 
         ctx.fillRect(
+
             0,
             0,
             WIDTH,
             HEIGHT
+
         );
 
         return;
@@ -806,7 +777,11 @@ function drawScenery() {
 
 
     /*
-       Fit the scenery to the entire 640 x 360 canvas.
+       Draw the COMPLETE scenery exactly once.
+
+       The original image is 1536 x 1024.
+
+       It is scaled to the 640 x 360 game canvas.
     */
 
     ctx.drawImage(
@@ -835,12 +810,10 @@ function drawScenery() {
 function drawPlayer() {
 
     /*
-       MOST IMPORTANT PART OF THIS REVISION:
+       Never draw a placeholder square.
 
-       Never draw the old pink square.
-
-       If the player image is not loaded yet, we simply
-       wait for it.
+       If the sprite has not loaded yet,
+       simply wait.
     */
 
     if (!playerReady) {
@@ -850,21 +823,9 @@ function drawPlayer() {
     }
 
 
-    /*
-       Select the direction column.
-    */
-
     const column =
         directionColumn[player.facing];
 
-
-    /*
-       Select animation row.
-
-       Frame 0 = standing
-       Frame 1 = walking
-       Frame 2 = walking
-    */
 
     const row =
         player.frame;
@@ -874,15 +835,14 @@ function drawPlayer() {
         column *
         SPRITE_SIZE;
 
+
     const sourceY =
         row *
         SPRITE_SIZE;
 
 
     /*
-       Visible character size.
-
-       The collision box remains much smaller.
+       Visible sprite size.
     */
 
     const drawWidth = 48;
@@ -890,9 +850,27 @@ function drawPlayer() {
 
 
     /*
-       Draw the character centered on the player's
-       collision position.
+       Draw from the feet position.
+
+       This keeps the player's collision position
+       at the feet rather than the center of the
+       visible sprite.
     */
+
+    const drawX =
+        Math.round(
+            player.x -
+            drawWidth / 2
+        );
+
+
+    const drawY =
+        Math.round(
+            player.y -
+            drawHeight +
+            8
+        );
+
 
     ctx.drawImage(
 
@@ -904,16 +882,8 @@ function drawPlayer() {
         SPRITE_SIZE,
         SPRITE_SIZE,
 
-        Math.round(
-            player.x -
-            drawWidth / 2
-        ),
-
-        Math.round(
-            player.y -
-            drawHeight +
-            8
-        ),
+        drawX,
+        drawY,
 
         drawWidth,
         drawHeight
@@ -928,19 +898,25 @@ function drawPlayer() {
    ========================================================= */
 
 /*
-   The player is drawn BEFORE this portion of the fountain.
+   THIS IS THE IMPORTANT FIX.
 
-   Therefore:
+   The scenery image is 1536 x 1024.
 
-       PLAYER BODY
-            ↓
-       FOUNTAIN FRONT
+   The game displays it at 640 x 360.
 
-   The character can walk behind the fountain, while the
-   front edge of the fountain covers the character's feet.
+   Therefore we CANNOT use 640 x 360 coordinates
+   as source coordinates when cutting the fountain
+   out of the original image.
 
-   Importantly, we only redraw the fountain itself rather
-   than the entire carpet.
+   The original fountain occupies approximately:
+
+       source X: 550 - 985
+       source Y: 285 - 475
+
+   We only draw the FRONT / LOWER portion.
+
+   We also use a clipping shape so that the carpet
+   surrounding the fountain is NOT drawn over the player.
 */
 
 function drawFountainForeground() {
@@ -953,37 +929,185 @@ function drawFountainForeground() {
 
 
     /*
-       Fountain foreground crop.
-
-       These coordinates correspond to the fountain area
-       in the 640 x 360 scenery.
+       Save the canvas state so the clipping region
+       does not affect anything else.
     */
 
-    const sx = 232;
-    const sy = 116;
-    const sw = 176;
-    const sh = 62;
+    ctx.save();
 
 
     /*
-       Destination is the same location on the canvas.
+       Fountain front shape in GAME coordinates.
+
+       This is deliberately only the lower/front
+       basin of the fountain.
+
+       It does NOT cover the entire fountain.
+    */
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        236,
+        139
+    );
+
+
+    /*
+       Upper edge of the front basin.
+    */
+
+    ctx.quadraticCurveTo(
+
+        320,
+        151,
+
+        404,
+        139
+
+    );
+
+
+    /*
+       Right side.
+    */
+
+    ctx.quadraticCurveTo(
+
+        398,
+        160,
+
+        380,
+        168
+
+    );
+
+
+    /*
+       Bottom edge.
+    */
+
+    ctx.quadraticCurveTo(
+
+        320,
+        177,
+
+        260,
+        168
+
+    );
+
+
+    /*
+       Left side.
+    */
+
+    ctx.quadraticCurveTo(
+
+        242,
+        160,
+
+        236,
+        139
+
+    );
+
+
+    ctx.closePath();
+
+    ctx.clip();
+
+
+    /*
+       IMPORTANT:
+
+       Convert the desired GAME-SCREEN region into
+       SOURCE-IMAGE coordinates.
+
+       Source image:
+           1536 x 1024
+
+       Canvas:
+           640 x 360
+    */
+
+    const scaleX =
+        sceneryImage.naturalWidth /
+        WIDTH;
+
+
+    const scaleY =
+        sceneryImage.naturalHeight /
+        HEIGHT;
+
+
+    /*
+       Fountain region on the GAME SCREEN.
+    */
+
+    const destX = 225;
+    const destY = 92;
+
+    const destW = 190;
+    const destH = 86;
+
+
+    /*
+       Corresponding source rectangle.
+    */
+
+    const sourceX =
+        destX *
+        scaleX;
+
+
+    const sourceY =
+        destY *
+        scaleY;
+
+
+    const sourceW =
+        destW *
+        scaleX;
+
+
+    const sourceH =
+        destH *
+        scaleY;
+
+
+    /*
+       Draw the correctly scaled fountain section.
+
+       Because of the clipping path above,
+       the surrounding carpet cannot cover
+       the character.
     */
 
     ctx.drawImage(
 
         sceneryImage,
 
-        sx,
-        sy,
-        sw,
-        sh,
+        sourceX,
+        sourceY,
 
-        sx,
-        sy,
-        sw,
-        sh
+        sourceW,
+        sourceH,
+
+        destX,
+        destY,
+
+        destW,
+        destH
 
     );
+
+
+    /*
+       Restore the normal canvas clipping.
+    */
+
+    ctx.restore();
 
 }
 
@@ -1007,6 +1131,10 @@ function drawInteractionPrompt() {
         ) * 2;
 
 
+    /*
+       Keep the prompt above the player.
+    */
+
     const x = 320;
 
     const y =
@@ -1021,7 +1149,6 @@ function drawInteractionPrompt() {
 
     ctx.fillStyle =
         "rgba(10,10,15,0.9)";
-
 
     ctx.fillRect(
 
@@ -1043,7 +1170,6 @@ function drawInteractionPrompt() {
 
     ctx.lineWidth = 2;
 
-
     ctx.strokeRect(
 
         x - 16,
@@ -1057,6 +1183,9 @@ function drawInteractionPrompt() {
 
     /*
        Letter E.
+
+       Use integer positioning for
+       sharper pixel-game text.
     */
 
     ctx.fillStyle =
@@ -1071,13 +1200,12 @@ function drawInteractionPrompt() {
     ctx.textBaseline =
         "middle";
 
-
     ctx.fillText(
 
         "E",
 
-        x,
-        y
+        Math.round(x),
+        Math.round(y)
 
     );
 
@@ -1126,7 +1254,8 @@ function updateRain() {
         const drop of rain
     ) {
 
-        drop.y += drop.speed;
+        drop.y +=
+            drop.speed;
 
 
         if (
@@ -1173,6 +1302,7 @@ function drawRain() {
         ctx.lineTo(
 
             drop.x - 1,
+
             drop.y +
             drop.length
 
@@ -1207,7 +1337,6 @@ function drawMessage() {
 
     ctx.fillStyle =
         "rgba(10,10,15,0.88)";
-
 
     ctx.fillRect(
 
@@ -1262,45 +1391,46 @@ function drawMessage() {
 function draw() {
 
     /*
-       1. Background scenery
+       1. Full scenery.
     */
 
     drawScenery();
 
 
     /*
-       2. Player
+       2. Player.
+
+       The player is drawn ON TOP of the scenery,
+       allowing him to walk behind the fountain.
     */
 
     drawPlayer();
 
 
     /*
-       3. Fountain foreground
-
-       The front of the fountain covers the player's
-       feet/lower body.
+       3. Only the front edge of the fountain
+          is drawn over the player's feet.
     */
 
     drawFountainForeground();
 
 
     /*
-       4. E interaction prompt
+       4. Interaction prompt.
     */
 
     drawInteractionPrompt();
 
 
     /*
-       5. Rain
+       5. Rain.
     */
 
     drawRain();
 
 
     /*
-       6. Dialogue
+       6. Dialogue.
     */
 
     drawMessage();
